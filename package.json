@@ -1,0 +1,27 @@
+{
+  "name": "blog-management",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "lint": "prettier -c .",
+    "lint:fix": "prettier -w .",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Connor Wagner",
+  "license": "ISC",
+  "description": "A basic REST API to manage a blogging site.",
+  "dependencies": {
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.22",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.0",
+    "typescript": "^4.6.2"
+  }
+}
