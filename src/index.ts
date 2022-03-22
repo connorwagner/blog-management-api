@@ -1,4 +1,5 @@
 import express from "express";
+
 import { configureEndpoints } from "./endpoint/configure-endpoints";
 
 const app = express();
