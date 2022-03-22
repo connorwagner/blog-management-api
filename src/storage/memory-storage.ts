@@ -8,25 +8,28 @@ export const memoryStorage: Storage = {
   getUser: function (id: number): Promise<Nullable<User>> {
     return Promise.resolve(dataStore.users[id]);
   },
-  setUser: function (user: User): Promise<void> {
-    dataStore.users[user.id] = user;
-    return Promise.resolve();
+  setUser: function (user: User, id?: number): Promise<number> {
+    id = getNextId(dataStore.users, id);
+    dataStore.users[id] = user;
+    return Promise.resolve(id);
   },
 
   getBlogPost: function (id: number): Promise<Nullable<BlogPost>> {
     return Promise.resolve(dataStore.blogPosts[id]);
   },
-  setBlogPost: function (blogPost: BlogPost): Promise<void> {
-    dataStore.blogPosts[blogPost.id] = blogPost;
-    return Promise.resolve();
+  setBlogPost: function (blogPost: BlogPost, id?: number): Promise<number> {
+    id = getNextId(dataStore.blogPosts, id);
+    dataStore.blogPosts[id] = blogPost;
+    return Promise.resolve(id);
   },
 
   getComment: function (id: number): Promise<Nullable<Comment>> {
     return Promise.resolve(dataStore.comments[id]);
   },
-  setComment: function (comment: Comment): Promise<void> {
-    dataStore.comments[comment.id] = comment;
-    return Promise.resolve();
+  setComment: function (comment: Comment, id?: number): Promise<number> {
+    id = getNextId(dataStore.comments, id);
+    dataStore.comments[id] = comment;
+    return Promise.resolve(id);
   },
 };
 
@@ -46,4 +49,14 @@ const dataStore: DataStore = {
   users: {},
   blogPosts: {},
   comments: {},
+};
+
+const getNextId = (store: { [id: number]: any }, id?: number): number => {
+  if (!!id) return id;
+
+  const ids = Object.keys(store).map((key) => parseInt(key));
+  if (ids.length === 0) return 1;
+
+  const maxId = Math.max(...ids);
+  return maxId + 1;
 };

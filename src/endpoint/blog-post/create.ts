@@ -3,8 +3,8 @@ import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { Nullable } from "../../types/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import { BlogPost, isBlogPost } from "../../model/blog-post.model";
 import storage from "../../storage";
+import { BlogPost, isBlogPost } from "../../model/blog-post.model";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -19,14 +19,15 @@ const createBlogPost = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  await storage.setBlogPost(req.body as BlogPost);
+  const blogPost = req.body as BlogPost;
+  const id = await storage.setBlogPost(blogPost);
 
-  res.status(200).send();
+  res.status(200).send({ id });
 };
 
 const validateReqBody = (body: any): Nullable<InvalidRequestResponse> => {
   if (!isBlogPost(body)) {
-    return { status: 400, body: { reason: "Invalid blog post format" } };
+    return { status: 400, body: { reason: "Invalid body format" } };
   }
 
   return null;

@@ -1,10 +1,7 @@
 import { Nullable } from "../types/nullable.type";
-import { isUser, User } from "./user.model";
 
 export interface Comment {
-  id: number;
-
-  author: User;
+  authorId: number;
   content: string;
   parentPostId: Nullable<number>;
   parentCommentId: Nullable<number>;
@@ -13,8 +10,7 @@ export interface Comment {
 export const isComment = (comment: any): comment is Comment => {
   const coercedComment = comment as Comment;
   return (
-    typeof coercedComment.id === "number" &&
-    isUser(coercedComment.author) &&
+    typeof coercedComment.authorId === "number" &&
     typeof coercedComment.content === "string" &&
     (typeof coercedComment.parentPostId === "number" ||
       typeof coercedComment.parentCommentId === "number")

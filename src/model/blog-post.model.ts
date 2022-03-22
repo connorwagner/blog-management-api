@@ -1,10 +1,6 @@
-import { isUser, User } from "./user.model";
-
 export interface BlogPost {
-  id: number;
-
   title: string;
-  author: User;
+  authorId: number;
   content: string;
   timestamp: Date;
 }
@@ -12,9 +8,8 @@ export interface BlogPost {
 export const isBlogPost = (blogPost: any): blogPost is BlogPost => {
   const coercedBlogPost = blogPost as BlogPost;
   return (
-    typeof coercedBlogPost.id === "number" &&
     typeof coercedBlogPost.title === "string" &&
-    isUser(coercedBlogPost.author) &&
+    typeof coercedBlogPost.authorId === "number" &&
     typeof coercedBlogPost.content === "string" &&
     !!Date.parse(blogPost.timestamp)
   );
