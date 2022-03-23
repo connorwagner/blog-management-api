@@ -6,11 +6,11 @@ import storage from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.get("/blogs/:id", getBlogPost);
+    app.delete("/blogs/:id", deleteBlogPost);
   },
 };
 
-const getBlogPost = async (req: Request, res: Response): Promise<void> => {
+const deleteBlogPost = async (req: Request, res: Response): Promise<void> => {
   const invalidResponse = validateReqParams(req.params);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
@@ -24,6 +24,8 @@ const getBlogPost = async (req: Request, res: Response): Promise<void> => {
     res.status(404).send();
     return;
   }
+
+  await storage.deleteBlogPost(blogPostId);
 
   res.status(200).send(blogPost);
 };

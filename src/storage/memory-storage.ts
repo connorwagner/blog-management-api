@@ -13,6 +13,10 @@ export const memoryStorage: Storage = {
     dataStore.users[id] = user;
     return Promise.resolve(id);
   },
+  deleteUser(id: number): Promise<void> {
+    delete dataStore.users[id];
+    return Promise.resolve();
+  },
 
   getBlogPost: function (id: number): Promise<Nullable<BlogPost>> {
     return Promise.resolve(dataStore.blogPosts[id]);
@@ -22,6 +26,10 @@ export const memoryStorage: Storage = {
     dataStore.blogPosts[id] = blogPost;
     return Promise.resolve(id);
   },
+  deleteBlogPost(id: number): Promise<void> {
+    delete dataStore.blogPosts[id];
+    return Promise.resolve();
+  },
 
   getComment: function (id: number): Promise<Nullable<Comment>> {
     return Promise.resolve(dataStore.comments[id]);
@@ -30,6 +38,10 @@ export const memoryStorage: Storage = {
     id = getNextId(dataStore.comments, id);
     dataStore.comments[id] = comment;
     return Promise.resolve(id);
+  },
+  deleteComment(id: number): Promise<void> {
+    delete dataStore.comments[id];
+    return Promise.resolve();
   },
 };
 
