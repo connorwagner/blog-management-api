@@ -6,37 +6,35 @@ import storage from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.delete("/blogs/:id", deleteBlogPost);
+    app.get("/users/:id", getUser);
   },
 };
 
-const deleteBlogPost = async (req: Request, res: Response): Promise<void> => {
+const getUser = async (req: Request, res: Response): Promise<void> => {
   const invalidResponse = validateReqParams(req.params);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
     return;
   }
 
-  const blogPostId = parseInt(req.params.id);
-  const blogPost = await storage.getBlogPost(blogPostId);
+  const userId = parseInt(req.params.id);
+  const user = await storage.getUser(userId);
 
-  if (!blogPost) {
+  if (!user) {
     res.status(404).send();
     return;
   }
 
-  await storage.deleteBlogPost(blogPostId);
-
-  res.status(200).send(blogPost);
+  res.status(200).send(user);
 };
 
 const validateReqParams = (params: any): Nullable<InvalidRequestResponse> => {
   if (!params.id) {
-    return { status: 400, body: { reason: "Blog post ID is required" } };
+    return { status: 400, body: { reason: "User ID is required" } };
   }
 
   if (parseInt(params.id) == NaN) {
-    return { status: 400, body: { reason: "Blog post ID must be numeric" } };
+    return { status: 400, body: { reason: "User ID must be numeric" } };
   }
 
   return null;

@@ -4,8 +4,19 @@ export interface User {
   email: string;
 }
 
-export const isUser = (user: any): user is User => {
+export const isUser = (
+  user: any,
+  options: { partial: boolean } = { partial: false }
+): user is User => {
   const coercedUser = user as User;
+
+  if (options.partial)
+    return (
+      typeof coercedUser.firstName === "string" ||
+      typeof coercedUser.lastName === "string" ||
+      typeof coercedUser.email === "string"
+    );
+
   return (
     typeof coercedUser.firstName === "string" &&
     typeof coercedUser.lastName === "string" &&

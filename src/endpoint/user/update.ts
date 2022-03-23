@@ -4,29 +4,29 @@ import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
 import storage from "../../storage";
-import { isBlogPost } from "../../model/blog-post.model";
+import { isUser } from "../../model/user.model";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.patch("/blogs/:id", bodyParser.json(), updateBlogPost);
+    app.patch("/users/:id", bodyParser.json(), updateUser);
   },
 };
 
-const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
+const updateUser = async (req: Request, res: Response): Promise<void> => {
   const invalidResponse = validateReq(req);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
     return;
   }
 
-  const blogPostId = parseInt(req.params.id);
-  let blogPost = await storage.getBlogPost(blogPostId);
-  if (!blogPost) {
+  const userId = parseInt(req.params.id);
+  let user = await storage.getUser(userId);
+  if (!user) {
     res.status(404).send();
   }
-  blogPost = { ...blogPost, ...req.body };
+  user = { ...user, ...req.body };
 
-  const id = await storage.setBlogPost(blogPost!, blogPostId);
+  const id = await storage.setUser(user!, userId);
 
   res.status(200).send({ id });
 };
@@ -43,18 +43,18 @@ const validateReq = (req: Request): Nullable<InvalidRequestResponse> => {
 
 const validateReqParams = (params: any): Nullable<InvalidRequestResponse> => {
   if (!params.id) {
-    return { status: 400, body: { reason: "Blog post ID is required" } };
+    return { status: 400, body: { reason: "User ID is required" } };
   }
 
   if (parseInt(params.id) == NaN) {
-    return { status: 400, body: { reason: "Blog post ID must be numeric" } };
+    return { status: 400, body: { reason: "User ID must be numeric" } };
   }
 
   return null;
 };
 
 const validateReqBody = (body: any): Nullable<InvalidRequestResponse> => {
-  if (!isBlogPost(body, { partial: true })) {
+  if (!isUser(body, { partial: true })) {
     return { status: 400, body: { reason: "Invalid body format" } };
   }
 

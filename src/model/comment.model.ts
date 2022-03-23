@@ -1,4 +1,4 @@
-import { Nullable } from "../types/nullable.type";
+import { Nullable } from "../type/nullable.type";
 
 export interface Comment {
   authorId: number;

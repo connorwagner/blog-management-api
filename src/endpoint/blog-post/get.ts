@@ -1,6 +1,6 @@
 import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
-import { Nullable } from "../../types/nullable.type";
+import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
 import storage from "../../storage";
 

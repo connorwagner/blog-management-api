@@ -1,4 +1,6 @@
-import blogPost from "./blog-post";
 import { EndpointConfiguration } from "./model/endpoint-configuration.model";
 
-export const allEndpoints: EndpointConfiguration[] = [...blogPost];
+import blogPost from "./blog-post";
+import user from "./user";
+
+export const allEndpoints: EndpointConfiguration[] = [...blogPost, ...user];

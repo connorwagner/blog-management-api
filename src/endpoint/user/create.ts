@@ -4,29 +4,29 @@ import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
 import storage from "../../storage";
-import { BlogPost, isBlogPost } from "../../model/blog-post.model";
+import { isUser, User } from "../../model/user.model";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.post("/blogs", bodyParser.json(), createBlogPost);
+    app.post("/users", bodyParser.json(), createUser);
   },
 };
 
-const createBlogPost = async (req: Request, res: Response): Promise<void> => {
+const createUser = async (req: Request, res: Response): Promise<void> => {
   const invalidResponse = validateReqBody(req.body);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
     return;
   }
 
-  const blogPost = req.body as BlogPost;
-  const id = await storage.setBlogPost(blogPost);
+  const user = req.body as User;
+  const id = await storage.setUser(user);
 
   res.status(200).send({ id });
 };
 
 const validateReqBody = (body: any): Nullable<InvalidRequestResponse> => {
-  if (!isBlogPost(body)) {
+  if (!isUser(body)) {
     return { status: 400, body: { reason: "Invalid body format" } };
   }
 

@@ -1,6 +1,6 @@
 import { BlogPost } from "../model/blog-post.model";
 import { User } from "../model/user.model";
-import { Nullable } from "../types/nullable.type";
+import { Nullable } from "../type/nullable.type";
 import { Storage } from "./model/storage.model";
 import { Comment } from "../model/comment.model";
 
