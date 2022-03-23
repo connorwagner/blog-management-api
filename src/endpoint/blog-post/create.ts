@@ -13,7 +13,7 @@ export const endpoint: EndpointConfiguration = {
 };
 
 const createBlogPost = async (req: Request, res: Response): Promise<void> => {
-  const invalidResponse = validateReqBody(req.body);
+  const invalidResponse = await validateReqBody(req.body);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
     return;
@@ -25,10 +25,15 @@ const createBlogPost = async (req: Request, res: Response): Promise<void> => {
   res.status(200).send({ id });
 };
 
-const validateReqBody = (body: any): Nullable<InvalidRequestResponse> => {
-  if (!isBlogPost(body)) {
+const validateReqBody = async (
+  body: any
+): Promise<Nullable<InvalidRequestResponse>> => {
+  if (!isBlogPost(body))
     return { status: 400, body: { reason: "Invalid body format" } };
-  }
+
+  const authorId = body.authorId;
+  const author = await storage.getUser(authorId);
+  if (!author) return { status: 400, body: { reason: "Invalid author" } };
 
   return null;
 };

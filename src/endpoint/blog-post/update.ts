@@ -13,7 +13,7 @@ export const endpoint: EndpointConfiguration = {
 };
 
 const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
-  const invalidResponse = validateReq(req);
+  const invalidResponse = await validateReq(req);
   if (!!invalidResponse) {
     res.status(invalidResponse.status).send(invalidResponse.body);
     return;
@@ -31,11 +31,13 @@ const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
   res.status(200).send({ id });
 };
 
-const validateReq = (req: Request): Nullable<InvalidRequestResponse> => {
+const validateReq = async (
+  req: Request
+): Promise<Nullable<InvalidRequestResponse>> => {
   let invalidResponse = validateReqParams(req.params);
   if (!!invalidResponse) return invalidResponse;
 
-  invalidResponse = validateReqBody(req.body);
+  invalidResponse = await validateReqBody(req.body);
   if (!!invalidResponse) return invalidResponse;
 
   return null;
@@ -53,9 +55,17 @@ const validateReqParams = (params: any): Nullable<InvalidRequestResponse> => {
   return null;
 };
 
-const validateReqBody = (body: any): Nullable<InvalidRequestResponse> => {
+const validateReqBody = async (
+  body: any
+): Promise<Nullable<InvalidRequestResponse>> => {
   if (!isBlogPost(body, { partial: true })) {
     return { status: 400, body: { reason: "Invalid body format" } };
+  }
+
+  const authorId = body.authorId;
+  if (!!authorId) {
+    const author = await storage.getUser(authorId);
+    if (!author) return { status: 400, body: { reason: "Invalid author" } };
   }
 
   return null;
