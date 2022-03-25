@@ -1,11 +1,11 @@
 import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
 import { userStorage } from "../../storage";
-import { userIdValidator } from "./validator/user-id-validator";
+import { idValidator } from "../validator/id-validator";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.get("/users/:id", userIdValidator({ paramName: "id" }), getUser);
+    app.get("/users/:id", idValidator({ paramName: "id" }), getUser);
   },
 };
 

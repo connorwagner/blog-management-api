@@ -2,7 +2,7 @@ import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { userStorage } from "../../storage";
-import { userIdValidator } from "./validator/user-id-validator";
+import { idValidator } from "../validator/id-validator";
 import { userValidator } from "./validator/user-validator";
 
 export const endpoint: EndpointConfiguration = {
@@ -10,7 +10,7 @@ export const endpoint: EndpointConfiguration = {
     app.patch(
       "/users/:id",
       bodyParser.json(),
-      userIdValidator({ paramName: "id" }),
+      idValidator({ paramName: "id" }),
       userValidator({ partial: true }),
       updateUser
     );
@@ -23,6 +23,7 @@ const updateUser = async (req: Request, res: Response): Promise<void> => {
   if (!user) {
     res.status(404).send();
   }
+
   user = { ...user, ...req.body };
 
   const id = await userStorage.set(user!, userId);

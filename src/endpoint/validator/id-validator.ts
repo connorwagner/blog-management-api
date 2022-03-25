@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { invalidRequestResponseFactory } from "../../factory/invalid-request-response-factory";
+import { invalidRequestResponseFactory } from "../factory/invalid-request-response-factory";
 
-export const userIdValidator = (
+export const idValidator = (
   options: { paramName?: string } = {}
 ): RequestHandler => {
   const { paramName } = options;
