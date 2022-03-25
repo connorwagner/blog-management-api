@@ -1,24 +1,30 @@
 import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
-import { Nullable } from "../../type/nullable.type";
-import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import { isComment } from "../../model/comment.model";
-import { blogPostStorage, commentStorage, userStorage } from "../../storage";
+import { commentStorage } from "../../storage";
+import { idValidator } from "../validator/id-validator";
+import { commentValidator } from "./validator/comment-validator";
+import { ShouldEnsureEntityExists } from "../validator/entity-exists-validator";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
-    app.patch("/comments/:id", bodyParser.json(), updateBlogPost);
+    app.patch(
+      "/comments/:id",
+      bodyParser.json(),
+      idValidator({ paramName: "id" }),
+      commentValidator({
+        partial: true,
+        noId: true,
+        ensureAuthorExists: ShouldEnsureEntityExists.IfIdPresent,
+        ensureBlogPostExists: ShouldEnsureEntityExists.IfIdPresent,
+        ensureParentCommentExists: ShouldEnsureEntityExists.IfIdPresent,
+      }),
+      updateBlogPost
+    );
   },
 };
 
 const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
-  const invalidResponse = await validateReq(req);
-  if (!!invalidResponse) {
-    res.status(invalidResponse.status).send(invalidResponse.body);
-    return;
-  }
-
   const commentId = parseInt(req.params.id);
   let comment = await commentStorage.get(commentId);
   if (!comment) {
@@ -29,62 +35,4 @@ const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
   const id = await commentStorage.set(comment!, commentId);
 
   res.status(200).send({ id });
-};
-
-const validateReq = async (
-  req: Request
-): Promise<Nullable<InvalidRequestResponse>> => {
-  let invalidResponse = await validateReqParams(req.params);
-  if (!!invalidResponse) return invalidResponse;
-
-  invalidResponse = await validateReqBody(req.body);
-  if (!!invalidResponse) return invalidResponse;
-
-  return null;
-};
-
-const validateReqParams = async (
-  params: any
-): Promise<Nullable<InvalidRequestResponse>> => {
-  if (!params.id) {
-    return {
-      status: 400,
-      body: { reason: "Either blog post ID or comment ID is required" },
-    };
-  }
-
-  if (parseInt(params.id) == NaN) {
-    return { status: 400, body: { reason: "ID must be numeric" } };
-  }
-
-  return null;
-};
-
-const validateReqBody = async (
-  body: any
-): Promise<Nullable<InvalidRequestResponse>> => {
-  if (!isComment(body, { partial: true, noId: true })) {
-    return { status: 400, body: { reason: "Invalid body format" } };
-  }
-
-  const authorId = body.authorId;
-  if (!!authorId) {
-    const author = await userStorage.get(authorId);
-    if (!author) return { status: 400, body: { reason: "Invalid author" } };
-  }
-
-  const postId = body.parentPostId;
-  if (!!postId) {
-    const post = await blogPostStorage.get(postId);
-    if (!post) return { status: 400, body: { reason: "Invalid parent post" } };
-  }
-
-  const commentId = body.parentCommentId;
-  if (!!commentId) {
-    const post = await commentStorage.get(commentId);
-    if (!post)
-      return { status: 400, body: { reason: "Invalid parent comment" } };
-  }
-
-  return null;
 };

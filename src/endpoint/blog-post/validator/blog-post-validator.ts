@@ -1,12 +1,14 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { isBlogPost } from "../../../model/blog-post.model";
-import { userStorage } from "../../../storage";
 import { invalidRequestResponseFactory } from "../../factory/invalid-request-response-factory";
+import { userExistsValidator } from "../../user/validator/user-exists-validator";
+import { promisifyMiddleware } from "../../utility/promisify-middleware";
+import { ShouldEnsureEntityExists } from "../../validator/entity-exists-validator";
 
 export const blogPostValidator = (
   options: {
     partial?: boolean;
-    ensureAuthorExists?: EnsureAuthorExistsOption;
+    ensureAuthorExists?: ShouldEnsureEntityExists;
   } = {}
 ): RequestHandler => {
   const {
@@ -14,7 +16,8 @@ export const blogPostValidator = (
     ensureAuthorExists: ensureAuthorExistsOption,
   } = options;
   const partial = partialOption ?? false;
-  const ensureAuthorExists = ensureAuthorExistsOption ?? false;
+  const ensureAuthorExists =
+    ensureAuthorExistsOption ?? ShouldEnsureEntityExists.Always;
 
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!isBlogPost(req.body, { partial })) {
@@ -25,28 +28,12 @@ export const blogPostValidator = (
       return;
     }
 
-    const authorId = req.body.authorId;
-    if (
-      ensureAuthorExists === EnsureAuthorExistsOption.Always ||
-      (ensureAuthorExists === EnsureAuthorExistsOption.IfIdPresent &&
-        !!authorId)
-    ) {
-      const author = await userStorage.get(authorId);
-      if (!author) {
-        const invalidResponse = invalidRequestResponseFactory(
-          "Author is not a valid user"
-        );
-        res.status(invalidResponse.status).send(invalidResponse.body);
-        return;
-      }
-    }
+    const authorExistsValidator = userExistsValidator({
+      idBodyProperty: "authorId",
+      ensureUserExists: ensureAuthorExists,
+    });
+    await promisifyMiddleware(authorExistsValidator, req, res);
 
     next();
   };
 };
-
-export enum EnsureAuthorExistsOption {
-  IfIdPresent,
-  Always,
-  Never,
-}
