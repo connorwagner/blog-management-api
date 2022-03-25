@@ -2,7 +2,7 @@ import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
+import { blogPostStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -18,7 +18,7 @@ const getBlogPost = async (req: Request, res: Response): Promise<void> => {
   }
 
   const blogPostId = parseInt(req.params.id);
-  const blogPost = await storage.getBlogPost(blogPostId);
+  const blogPost = await blogPostStorage.get(blogPostId);
 
   if (!blogPost) {
     res.status(404).send();

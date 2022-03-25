@@ -2,7 +2,7 @@ import { EndpointConfiguration } from "../model/endpoint-configuration.model";
 import { Express, Request, Response } from "express";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
+import { commentStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -18,7 +18,7 @@ const getComment = async (req: Request, res: Response): Promise<void> => {
   }
 
   const commentId = parseInt(req.params.id);
-  const comment = await storage.getComment(commentId);
+  const comment = await commentStorage.get(commentId);
 
   if (!comment) {
     res.status(404).send();

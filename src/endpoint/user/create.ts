@@ -3,8 +3,8 @@ import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
 import { isUser, User } from "../../model/user.model";
+import { userStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -20,7 +20,7 @@ const createUser = async (req: Request, res: Response): Promise<void> => {
   }
 
   const user = req.body as User;
-  const id = await storage.setUser(user);
+  const id = await userStorage.set(user, null);
 
   res.status(200).send({ id });
 };

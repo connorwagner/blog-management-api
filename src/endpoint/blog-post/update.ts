@@ -3,8 +3,8 @@ import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
 import { isBlogPost } from "../../model/blog-post.model";
+import { blogPostStorage, userStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -20,13 +20,13 @@ const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
   }
 
   const blogPostId = parseInt(req.params.id);
-  let blogPost = await storage.getBlogPost(blogPostId);
+  let blogPost = await blogPostStorage.get(blogPostId);
   if (!blogPost) {
     res.status(404).send();
   }
   blogPost = { ...blogPost, ...req.body };
 
-  const id = await storage.setBlogPost(blogPost!, blogPostId);
+  const id = await blogPostStorage.set(blogPost!, blogPostId);
 
   res.status(200).send({ id });
 };
@@ -64,7 +64,7 @@ const validateReqBody = async (
 
   const authorId = body.authorId;
   if (!!authorId) {
-    const author = await storage.getUser(authorId);
+    const author = await userStorage.get(authorId);
     if (!author) return { status: 400, body: { reason: "Invalid author" } };
   }
 

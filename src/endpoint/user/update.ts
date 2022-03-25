@@ -3,8 +3,8 @@ import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
 import { isUser } from "../../model/user.model";
+import { userStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -20,13 +20,13 @@ const updateUser = async (req: Request, res: Response): Promise<void> => {
   }
 
   const userId = parseInt(req.params.id);
-  let user = await storage.getUser(userId);
+  let user = await userStorage.get(userId);
   if (!user) {
     res.status(404).send();
   }
   user = { ...user, ...req.body };
 
-  const id = await storage.setUser(user!, userId);
+  const id = await userStorage.set(user!, userId);
 
   res.status(200).send({ id });
 };

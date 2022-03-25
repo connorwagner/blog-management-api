@@ -3,8 +3,8 @@ import { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import { Nullable } from "../../type/nullable.type";
 import { InvalidRequestResponse } from "../model/response/invalid-request-response.model";
-import storage from "../../storage";
 import { isComment } from "../../model/comment.model";
+import { blogPostStorage, commentStorage, userStorage } from "../../storage";
 
 export const endpoint: EndpointConfiguration = {
   configure: function (app: Express): void {
@@ -20,13 +20,13 @@ const updateBlogPost = async (req: Request, res: Response): Promise<void> => {
   }
 
   const commentId = parseInt(req.params.id);
-  let comment = await storage.getComment(commentId);
+  let comment = await commentStorage.get(commentId);
   if (!comment) {
     res.status(404).send();
   }
   comment = { ...comment, ...req.body };
 
-  const id = await storage.setComment(comment!, commentId);
+  const id = await commentStorage.set(comment!, commentId);
 
   res.status(200).send({ id });
 };
@@ -69,19 +69,19 @@ const validateReqBody = async (
 
   const authorId = body.authorId;
   if (!!authorId) {
-    const author = await storage.getUser(authorId);
+    const author = await userStorage.get(authorId);
     if (!author) return { status: 400, body: { reason: "Invalid author" } };
   }
 
   const postId = body.parentPostId;
   if (!!postId) {
-    const post = await storage.getBlogPost(postId);
+    const post = await blogPostStorage.get(postId);
     if (!post) return { status: 400, body: { reason: "Invalid parent post" } };
   }
 
   const commentId = body.parentCommentId;
   if (!!commentId) {
-    const post = await storage.getComment(commentId);
+    const post = await commentStorage.get(commentId);
     if (!post)
       return { status: 400, body: { reason: "Invalid parent comment" } };
   }
